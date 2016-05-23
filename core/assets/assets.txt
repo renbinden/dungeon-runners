@@ -1,0 +1,62 @@
+﻿Player
+Swordsman
+Stand up
+Stand left
+Stand right
+Stand down
+Walk up
+Walk left
+Walk right
+Walk down
+Attack up
+Attack left
+Attack right
+Attack down
+Archer
+Stand up
+Stand left
+Stand right
+Stand down
+Walk up
+Walk left
+Walk right
+Walk down
+Shoot up
+Shoot left
+Shoot right
+Shoot down
+Healer
+Stand up
+Stand left
+Stand right
+Stand down
+Walk up
+Walk left
+Walk right
+Walk down
+Heal up
+Heal left
+Heal right
+Heal down
+Guardian
+Stand up
+Stand left
+Stand right
+Stand down
+Walk up
+Walk left
+Walk right
+Walk down
+Block up
+Block left
+Block right
+Block down
+Arrow
+Healing particles
+Wall
+Warp pad (source)
+Warp pad (dest)
+Arrow trap
+Pressure pad
+Up
+Down
