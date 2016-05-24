@@ -2,6 +2,7 @@ package com.seventh_root.dungeonrunners
 
 import com.badlogic.gdx.Game
 import com.seventh_root.dungeonrunners.screen.GameScreen
+import com.seventh_root.dungeonrunners.screen.LobbyScreen
 import com.seventh_root.dungeonrunners.screen.MenuScreen
 
 object DungeonRunners : Game() {
@@ -14,6 +15,7 @@ object DungeonRunners : Game() {
 
     override fun dispose() {
         MenuScreen.dispose()
+        LobbyScreen.dispose()
         gameScreen?.dispose()
     }
 
