@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.maps.MapRenderer
+import com.badlogic.gdx.maps.objects.RectangleMapObject
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.BodyDef
@@ -39,23 +40,34 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
     init {
         camera.setToOrtho(false, graphics.width.toFloat(), graphics.height.toFloat())
         engine.addSystem(MovementSystem)
-        val player = Entity()
-        val controller = KeyboardController()
-        controllers.add(controller)
-        player.add(ControllerComponent(controller))
-        val bodyDef = BodyDef()
-        bodyDef.type = BodyDef.BodyType.DynamicBody
-        val body = world.createBody(bodyDef)
-        val fixtureDef = FixtureDef()
-        val shape = PolygonShape()
-        shape.setAsBox(1F, 1F)
-        fixtureDef.shape = PolygonShape()
-        body.createFixture(fixtureDef)
-        player.add(BodyComponent(world.createBody(bodyDef)))
-        val texture = Texture(files.internal("test_tiles.png"))
-        val region = TextureRegion(texture, 48, 0, 16, 16)
-        player.add(SpriteComponent(Sprite(region)))
-        engine.addEntity(player)
+        map.layers
+                .map { layer -> layer.objects }
+                .forEach {
+                    objects -> objects.forEach {
+                        obj ->
+                            val entity = Entity()
+                            val bodyDef = BodyDef()
+                            bodyDef.type = BodyDef.BodyType.DynamicBody
+                            val body = world.createBody(bodyDef)
+                            val fixtureDef = FixtureDef()
+                            val shape = PolygonShape()
+                            shape.setAsBox(16F, 16F)
+                            fixtureDef.shape = PolygonShape()
+                            body.createFixture(fixtureDef)
+                            val rectangleMapObject = obj as RectangleMapObject
+                            body.setTransform(rectangleMapObject.rectangle.x, rectangleMapObject.rectangle.y, 0F)
+                            entity.add(BodyComponent(body))
+                            if (obj.properties.get("type") == "player") {
+                                val controller = KeyboardController()
+                                controllers.add(controller)
+                                entity.add(ControllerComponent(controller))
+                                val texture = Texture(files.internal("test_tiles.png"))
+                                val region = TextureRegion(texture, 48, 0, 16, 16)
+                                entity.add(SpriteComponent(Sprite(region)))
+                            }
+                            engine.addEntity(entity)
+                    }
+                }
     }
 
     override fun render(delta: Float) {

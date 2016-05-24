@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" nextobjectid="1">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" nextobjectid="2">
  <tileset firstgid="1" name="test" tilewidth="16" tileheight="16" tilecount="3" columns="3">
   <image source="test_tiles.png" width="48" height="16"/>
  </tileset>
@@ -8,4 +8,7 @@
    eJztlEEOgDAIBJH/P9q7CbCi3cXGA0nTVAfGtW5mLq6jKORM55lpfMRRx2u1f6d/1MWVE60n8Z+uM8+r+V0XX+ejuWfNXznZjY/eT8r8Mf2r+JF35P94ix/Ny7p/K98sftaXks/6/lPnV/HZ+Z82/xT+n/+1fA/e2cl/1DOyn9VEvrJOI7AFgw==
   </data>
  </layer>
+ <objectgroup name="Object Layer 1">
+  <object id="1" type="player" x="16" y="480" width="16" height="16"/>
+ </objectgroup>
 </map>
