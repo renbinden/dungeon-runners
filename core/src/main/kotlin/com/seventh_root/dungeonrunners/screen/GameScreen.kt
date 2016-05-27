@@ -70,8 +70,8 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
                             val shape:PolygonShape = PolygonShape()
                             var xd = obj.properties.get("x") as Float
                             var yd = obj.properties.get("y") as Float
-                            var wd = obj.properties.get("width") as Float
-                            var hd = obj.properties.get("height") as Float
+                            var wd = obj.properties.get("width") as Float -0.03F //FOR NOW... adds enough spacing for 16 sized
+                            var hd = obj.properties.get("height") as Float -0.03F// Boxes to go through small wall spaces
                             shape.setAsBox(P2U(wd/2F), P2U(hd/2F))
                             fixtureDef.shape = shape
                             fixtureDef.friction = 1F
