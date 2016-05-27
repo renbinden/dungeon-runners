@@ -2,6 +2,7 @@ package com.seventh_root.dungeonrunners.screen
 
 import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.ashley.core.Engine
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx.graphics
 import com.badlogic.gdx.ScreenAdapter
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -11,6 +12,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.*
 import com.seventh_root.dungeonrunners.component.BodyComponent
+import com.seventh_root.dungeonrunners.component.BrainComponent
 import com.seventh_root.dungeonrunners.component.SpriteComponent
 import com.seventh_root.dungeonrunners.controller.Controller
 import com.seventh_root.dungeonrunners.entity.BreakableEnt
@@ -27,6 +29,8 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
     val mapRenderer: MapRenderer = OrthogonalTiledMapRenderer(map, spriteBatch)
     val spriteMapper = ComponentMapper.getFor(SpriteComponent::class.java)
     val bodyMapper = ComponentMapper.getFor(BodyComponent::class.java)
+    val brainMapper = ComponentMapper.getFor(BrainComponent::class.java)
+    val units = 1.0F/30.0F;
     val worldScale = 30F;
     val debugRenderer = Box2DDebugRenderer();
     init {
@@ -39,49 +43,48 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
                         obj ->
                     when (obj.properties.get("type")) {
                         "playerspawn" -> {
-                            val player:PlayerEnt = PlayerEnt(obj.properties.get("x") as Float,obj.properties.get("y") as Float,16F,16F,false);
-                            val body = world.createBody(player.bodyDef)
-                            body.createFixture(player.fixtureDef)
-                            body.setTransform(player.pos.x, player.pos.y, 0F)
-                            player.entity.add(BodyComponent(body))
+                            val player:PlayerEnt = PlayerEnt(obj.properties.get("x") as Float,obj.properties.get("y") as Float,P2U(16F),P2U(16F),false);
+                            player.body = world.createBody(player.bodyDef)
+                            player.body.createFixture(player.fixtureDef)
+                            player.body.setTransform(P2U(player.pos.x+player.bodyoffset.x), P2U(player.pos.y+player.bodyoffset.y), 0F)
+                            player.entity.add(BodyComponent(player.body))
                             controllers.add(player.controller)
+                            player.entity.add(BrainComponent(player))
                             engine.addEntity(player.entity)
                         }
                         "breakablespawn" -> {
-                            val breakable:BreakableEnt = BreakableEnt(obj.properties.get("x") as Float,obj.properties.get("y") as Float,16F,16F);
-                            val body = world.createBody(breakable.bodyDef)
+                            val breakable:BreakableEnt = BreakableEnt(obj.properties.get("x") as Float,obj.properties.get("y") as Float,P2U(16F),P2U(16F));
+                            breakable.body = world.createBody(breakable.bodyDef)
                             println("Creating box");
-                            body.createFixture(breakable.fixtureDef)
-                            body.setTransform(breakable.pos.x, breakable.pos.y, 0F)
-                            breakable.entity.add(BodyComponent(body))
+                            breakable.body.createFixture(breakable.fixtureDef)
+                            breakable.body.setTransform(P2U(breakable.pos.x), P2U(breakable.pos.y), 0F)
+                            breakable.entity.add(BodyComponent(breakable.body))
+                            breakable.entity.add(BrainComponent(breakable))
                             engine.addEntity(breakable.entity)
+
                         }
                         "wall" -> {
-                          /*  val breakable:BreakableEnt = BreakableEnt(obj.properties.get("x") as Float,obj.properties.get("y") as Float);
-                            val body = world.createBody(breakable.bodyDef)
-                            println("Creating box");
-                            body.createFixture(breakable.fixtureDef)
-                            body.setTransform(breakable.pos.x, breakable.pos.y, 0F)
-                            breakable.entity.add(BodyComponent(body))
-                            engine.addEntity(breakable.entity)*/
+                            val entity: Entity = Entity()
+                            val bodyDef:BodyDef = BodyDef()
+                            val fixtureDef:FixtureDef = FixtureDef()
+                            val shape:PolygonShape = PolygonShape()
+                            var xd = obj.properties.get("x") as Float
+                            var yd = obj.properties.get("y") as Float
+                            var wd = obj.properties.get("width") as Float
+                            var hd = obj.properties.get("height") as Float
+                            shape.setAsBox(P2U(wd/2F), P2U(hd/2F))
+                            fixtureDef.shape = shape
+                            fixtureDef.friction = 1F
+                            val body = world.createBody(bodyDef)
+                            body.createFixture(fixtureDef)
+                            body.setTransform(P2U(xd+(wd/2F)), P2U(yd+(hd/2F)), 0F)
+                            entity.add(BodyComponent(body))
+                            engine.addEntity(entity)
                         }
                         else -> {
                             //DEFAULT UNKNOWN//
                         }
                                                         }
-                           /* val entity = Entity()
-                            val bodyDef = BodyDef()
-                            bodyDef.type = BodyDef.BodyType.DynamicBody
-                            val body = world.createBody(bodyDef)
-                            val fixtureDef = FixtureDef()
-                            val shape = PolygonShape()
-                            shape.setAsBox(16F, 16F)
-                            fixtureDef.shape = PolygonShape()
-                            body.createFixture(fixtureDef)
-                            val rectangleMapObject = obj as RectangleMapObject
-                            body.setTransform(rectangleMapObject.rectangle.x, rectangleMapObject.rectangle.y, 0F)
-                            entity.add(BodyComponent(body))*/
-                            //engine.addEntity(entity)
                     }
                 }
     }
@@ -98,14 +101,19 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
         mapRenderer.render()
         spriteBatch.begin()
         engine.entities
+                .filter { entity -> brainMapper.has(entity) }
+                .forEach { entity -> brainMapper.get(entity).brain.tick()}
+        engine.entities
                 .filter { entity -> spriteMapper.has(entity) }
                 .filter { entity -> bodyMapper.has(entity) }
-                .forEach { entity -> spriteMapper.get(entity).sprite.setPosition(bodyMapper.get(entity).body.position.x, bodyMapper.get(entity).body.position.y) }
+                .forEach { entity -> spriteMapper.get(entity).sprite.setPosition(U2P(bodyMapper.get(entity).body.position.x), U2P(bodyMapper.get(entity).body.position.y)) }
         engine.entities
                 .filter { entity -> spriteMapper.has(entity) }
                 .map { entity -> spriteMapper.get(entity) }
                 .map { spriteComponent -> spriteComponent.sprite }
                 .forEach { sprite -> sprite.draw(spriteBatch) }
+
+
         spriteBatch.end()
 
         debugRenderer.render(world, camera.combined)
@@ -117,12 +125,12 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
 
     fun P2U(px:Float):Float
     {
-        return (px*(1/worldScale))
+        return (px*(1F/worldScale))
     }
 
     fun U2P(un:Float):Float
     {
-        return (worldScale*un)//(1/worldUnits)*un
+        return Math.floor((worldScale*un).toDouble()).toFloat()//(1/worldUnits)*un
     }
 
 }

@@ -9,24 +9,33 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.seventh_root.dungeonrunners.component.ControllerComponent
 import com.seventh_root.dungeonrunners.component.SpriteComponent
-import com.seventh_root.dungeonrunners.controller.Controller
 import com.seventh_root.dungeonrunners.controller.KeyboardController
 
-class PlayerEnt(x:Float,y:Float,width:Float,height:Float,networkplayer:Boolean)
+class PlayerEnt(x:Float,y:Float,width:Float,height:Float,networkplayer:Boolean): Brain()
 {
     val entity:Entity = Entity()
-    val bodyDef:BodyDef = BodyDef();
-    val pos:Vector2 = Vector2(x,y);
-    val shape:PolygonShape = PolygonShape();
-    val fixtureDef:FixtureDef = FixtureDef();
-    lateinit var controller:KeyboardController;
-    var isNetwork:Boolean = networkplayer;
+
+    val bodyDef:BodyDef = BodyDef()
+    lateinit var body:Body
+    val fixtureDef:FixtureDef = FixtureDef()
+    val shape:PolygonShape = PolygonShape()
+
+
     val texture = Texture(Gdx.files.internal("test_tiles.png"))
     val region = TextureRegion(texture, 48, 0, 16, 16)
 
+    val pos:Vector2 = Vector2(x,y)
+    val spriteoffset:Vector2 = Vector2(0F,0F)
+
+    val bodyoffset:Vector2 = Vector2(width/2F,height/2F)
+    val bodysize:Vector2 = Vector2(width,height)
+
+    var isNetwork:Boolean = networkplayer;
+    lateinit var controller:KeyboardController
+
 init
 {
-    shape.setAsBox(width/2, height/2)
+    shape.setAsBox(width/2F, height/2F)
     fixtureDef.shape = shape;
     fixtureDef.friction = 1F;
 if (!isNetwork)
@@ -37,4 +46,9 @@ if (!isNetwork)
     bodyDef.type = BodyDef.BodyType.DynamicBody
     entity.add(SpriteComponent(Sprite(region)))
 }
+
+    override fun tick() {
+        super.tick()
+    }
+
 }

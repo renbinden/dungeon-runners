@@ -9,23 +9,37 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.seventh_root.dungeonrunners.component.SpriteComponent
 
-class BreakableEnt(x:Float,y:Float,width:Float,height:Float)
+class BreakableEnt(x:Float,y:Float,width:Float,height:Float):Brain()
 {
     val entity:Entity = Entity()
+
     val bodyDef:BodyDef = BodyDef()
-    val pos:Vector2 = Vector2(x,y)
-    val shape:PolygonShape = PolygonShape()
+    lateinit var body:Body
     val fixtureDef:FixtureDef = FixtureDef()
+    val shape:PolygonShape = PolygonShape()
+
+
     val texture = Texture(Gdx.files.internal("test_tiles.png"))
-    val region = TextureRegion(texture, 16, 0, 16, 16)
+    val region = TextureRegion(texture, 48, 0, 16, 16)
+
+    val pos:Vector2 = Vector2(x,y)
+    val spriteoffset:Vector2 = Vector2(0F,0F)
+
+    val bodyoffset:Vector2 = Vector2(width/2F,height/2F)
+    val bodysize:Vector2 = Vector2(width,height)
 
     init
     {
-        shape.setAsBox(width/2, height/2)
+        shape.setAsBox(width/2F, height/2F)
         fixtureDef.shape = shape;
         fixtureDef.friction = 0.3F;
         bodyDef.type = BodyDef.BodyType.DynamicBody
         bodyDef.linearDamping = 8F;
         entity.add(SpriteComponent(Sprite(region)))
     }
+
+    override fun tick() {
+        super.tick()
+    }
+
 }

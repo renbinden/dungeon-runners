@@ -12,7 +12,7 @@ object LobbyScreen: ScreenAdapter() {
 
     override fun show() {
         Box2D.init()
-        val world = World(Vector2(0F, 0F), true)
+        val world = World(Vector2(0F, 0F) , true)
         DungeonRunners.screen = GameScreen(world, TmxMapLoader().load("debug_map.tmx"))
     }
 
