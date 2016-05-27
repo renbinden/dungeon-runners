@@ -57,7 +57,7 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
                             breakable.body = world.createBody(breakable.bodyDef)
                             println("Creating box");
                             breakable.body.createFixture(breakable.fixtureDef)
-                            breakable.body.setTransform(P2U(breakable.pos.x), P2U(breakable.pos.y), 0F)
+                            breakable.body.setTransform(P2U(breakable.pos.x+breakable.bodyoffset.x), P2U(breakable.pos.y+breakable.bodyoffset.y), 0F)
                             breakable.entity.add(BodyComponent(breakable.body))
                             breakable.entity.add(BrainComponent(breakable))
                             engine.addEntity(breakable.entity)
@@ -106,7 +106,8 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
         engine.entities
                 .filter { entity -> spriteMapper.has(entity) }
                 .filter { entity -> bodyMapper.has(entity) }
-                .forEach { entity -> spriteMapper.get(entity).sprite.setPosition(U2P(bodyMapper.get(entity).body.position.x), U2P(bodyMapper.get(entity).body.position.y)) }
+                .filter { entity -> brainMapper.has(entity) }
+                .forEach { entity -> spriteMapper.get(entity).sprite.setPosition(U2P(bodyMapper.get(entity).body.position.x+brainMapper.get(entity).brain.spriteoffset.x), U2P(bodyMapper.get(entity).body.position.y+brainMapper.get(entity).brain.spriteoffset.y)) }
         engine.entities
                 .filter { entity -> spriteMapper.has(entity) }
                 .map { entity -> spriteMapper.get(entity) }

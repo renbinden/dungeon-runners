@@ -22,14 +22,14 @@ class BreakableEnt(x:Float,y:Float,width:Float,height:Float):Brain()
     val texture = Texture(Gdx.files.internal("test_tiles.png"))
     val region = TextureRegion(texture, 48, 0, 16, 16)
 
-    val pos:Vector2 = Vector2(x,y)
-    val spriteoffset:Vector2 = Vector2(0F,0F)
-
     val bodyoffset:Vector2 = Vector2(width/2F,height/2F)
     val bodysize:Vector2 = Vector2(width,height)
 
     init
     {
+        pos.x = x;pos.y = y;
+        spriteoffset.x = -bodyoffset.x;
+        spriteoffset.y = -bodyoffset.y;
         shape.setAsBox(width/2F, height/2F)
         fixtureDef.shape = shape;
         fixtureDef.friction = 0.3F;
