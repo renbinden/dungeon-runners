@@ -126,12 +126,12 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
 
     fun P2U(px:Float):Float
     {
-        return (px*(1F/worldScale))
+        return px//(px*(1F/worldScale))
     }
 
     fun U2P(un:Float):Float
     {
-        return Math.floor((worldScale*un).toDouble()).toFloat()//(1/worldUnits)*un
+        return un//Math.floor((worldScale*un).toDouble()).toFloat()//(1/worldUnits)*un
     }
-
+    //Temp Disable Scaling for box2D//
 }
