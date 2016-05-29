@@ -11,10 +11,12 @@ import com.badlogic.gdx.maps.MapRenderer
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.*
+import com.seventh_root.dungeonrunners.asset.Assets
 import com.seventh_root.dungeonrunners.component.BodyComponent
 import com.seventh_root.dungeonrunners.component.BrainComponent
 import com.seventh_root.dungeonrunners.component.SpriteComponent
 import com.seventh_root.dungeonrunners.controller.Controller
+import com.seventh_root.dungeonrunners.entity.Brain
 import com.seventh_root.dungeonrunners.entity.BreakableEnt
 import com.seventh_root.dungeonrunners.entity.PlayerEnt
 import com.seventh_root.dungeonrunners.system.MovementSystem
@@ -43,12 +45,15 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
                         obj ->
                     when (obj.properties.get("type")) {
                         "playerspawn" -> {
-                            val player:PlayerEnt = PlayerEnt(obj.properties.get("x") as Float,obj.properties.get("y") as Float,P2U(16F),P2U(16F),false);
+                            val player:PlayerEnt = PlayerEnt("debug",obj.properties.get("x") as Float,obj.properties.get("y") as Float,P2U(5F),P2U(5F),false);
                             player.body = world.createBody(player.bodyDef)
                             player.body.createFixture(player.fixtureDef)
                             player.body.setTransform(P2U(player.pos.x+player.bodyoffset.x), P2U(player.pos.y+player.bodyoffset.y), 0F)
                             player.entity.add(BodyComponent(player.body))
                             controllers.add(player.controller)
+
+                            player.setSpriteKit(Assets().loadspriteset(player.spriteSet()));
+
                             player.entity.add(BrainComponent(player))
                             engine.addEntity(player.entity)
                         }
@@ -122,6 +127,11 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
 
     override fun dispose() {
         map.dispose()
+    }
+
+    fun assignAnimation(spriten:String,brain:Brain)
+    {
+
     }
 
     fun P2U(px:Float):Float
