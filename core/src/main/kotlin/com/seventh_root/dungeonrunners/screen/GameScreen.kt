@@ -35,6 +35,7 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
     val units = 1.0F/30.0F;
     val worldScale = 30F;
     val debugRenderer = Box2DDebugRenderer();
+
     init {
         camera.setToOrtho(false, graphics.width.toFloat(), graphics.height.toFloat())
         engine.addSystem(MovementSystem)
@@ -43,26 +44,27 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
                 .forEach {
                     objects -> objects.forEach {
                         obj ->
-                    when (obj.properties.get("type")) {
+                    when (obj.properties.get("type"))
+                    {
                         "playerspawn" -> {
-                            val player:PlayerEnt = PlayerEnt("debug",obj.properties.get("x") as Float,obj.properties.get("y") as Float,P2U(5F),P2U(5F),false);
+                            val player:PlayerEnt = PlayerEnt("debug",obj.properties.get("x") as Float,obj.properties.get("y") as Float,pixleToUnit(5F),pixleToUnit(5F),false);
                             player.body = world.createBody(player.bodyDef)
                             player.body.createFixture(player.fixtureDef)
-                            player.body.setTransform(P2U(player.pos.x+player.bodyoffset.x), P2U(player.pos.y+player.bodyoffset.y), 0F)
+                            player.body.setTransform(pixleToUnit(player.pos.x+player.bodyoffset.x), pixleToUnit(player.pos.y+player.bodyoffset.y), 0F)
                             player.entity.add(BodyComponent(player.body))
                             controllers.add(player.controller)
 
-                            player.setSpriteKit(Assets().loadspriteset(player.spriteSet()));
+                            player.setSpriteKit(Assets().loadSpriteSet(player.spriteSet()));
 
                             player.entity.add(BrainComponent(player))
                             engine.addEntity(player.entity)
                         }
                         "breakablespawn" -> {
-                            val breakable:BreakableEnt = BreakableEnt(obj.properties.get("x") as Float,obj.properties.get("y") as Float,P2U(16F),P2U(16F));
+                            val breakable:BreakableEnt = BreakableEnt(obj.properties.get("x") as Float,obj.properties.get("y") as Float,pixleToUnit(16F),pixleToUnit(16F));
                             breakable.body = world.createBody(breakable.bodyDef)
                             println("Creating box");
                             breakable.body.createFixture(breakable.fixtureDef)
-                            breakable.body.setTransform(P2U(breakable.pos.x+breakable.bodyoffset.x), P2U(breakable.pos.y+breakable.bodyoffset.y), 0F)
+                            breakable.body.setTransform(pixleToUnit(breakable.pos.x+breakable.bodyoffset.x), pixleToUnit(breakable.pos.y+breakable.bodyoffset.y), 0F)
                             breakable.entity.add(BodyComponent(breakable.body))
                             breakable.entity.add(BrainComponent(breakable))
                             engine.addEntity(breakable.entity)
@@ -77,19 +79,19 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
                             var yd = obj.properties.get("y") as Float
                             var wd = obj.properties.get("width") as Float -0.03F //FOR NOW... adds enough spacing for 16 sized
                             var hd = obj.properties.get("height") as Float -0.03F// Boxes to go through small wall spaces
-                            shape.setAsBox(P2U(wd/2F), P2U(hd/2F))
+                            shape.setAsBox(pixleToUnit(wd/2F), pixleToUnit(hd/2F))
                             fixtureDef.shape = shape
                             fixtureDef.friction = 1F
                             val body = world.createBody(bodyDef)
                             body.createFixture(fixtureDef)
-                            body.setTransform(P2U(xd+(wd/2F)), P2U(yd+(hd/2F)), 0F)
+                            body.setTransform(pixleToUnit(xd+(wd/2F)), pixleToUnit(yd+(hd/2F)), 0F)
                             entity.add(BodyComponent(body))
                             engine.addEntity(entity)
                         }
                         else -> {
                             //DEFAULT UNKNOWN//
                         }
-                                                        }
+                    }
                     }
                 }
     }
@@ -100,19 +102,20 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
         engine.update(delta)
         world.step(delta, 6, 2)
         world.clearForces()
+        
+        engine.entities
+                .filter { entity -> brainMapper.has(entity) }
+                .forEach { entity -> brainMapper.get(entity).brain.tick()}
         // render
         camera.update()
         mapRenderer.setView(camera)
         mapRenderer.render()
         spriteBatch.begin()
         engine.entities
-                .filter { entity -> brainMapper.has(entity) }
-                .forEach { entity -> brainMapper.get(entity).brain.tick()}
-        engine.entities
                 .filter { entity -> spriteMapper.has(entity) }
                 .filter { entity -> bodyMapper.has(entity) }
                 .filter { entity -> brainMapper.has(entity) }
-                .forEach { entity -> spriteMapper.get(entity).sprite.setPosition(U2P(bodyMapper.get(entity).body.position.x+brainMapper.get(entity).brain.spriteoffset.x), U2P(bodyMapper.get(entity).body.position.y+brainMapper.get(entity).brain.spriteoffset.y)) }
+                .forEach { entity -> spriteMapper.get(entity).sprite.setPosition(unitToPixle(bodyMapper.get(entity).body.position.x+brainMapper.get(entity).brain.spriteoffset.x), unitToPixle(bodyMapper.get(entity).body.position.y+brainMapper.get(entity).brain.spriteoffset.y)) }
         engine.entities
                 .filter { entity -> spriteMapper.has(entity) }
                 .map { entity -> spriteMapper.get(entity) }
@@ -128,18 +131,14 @@ class GameScreen(var world: World, var map: TiledMap): ScreenAdapter() {
     override fun dispose() {
         map.dispose()
     }
+    
 
-    fun assignAnimation(spriten:String,brain:Brain)
-    {
-
-    }
-
-    fun P2U(px:Float):Float
+    fun pixleToUnit(px:Float):Float
     {
         return px//(px*(1F/worldScale))
     }
 
-    fun U2P(un:Float):Float
+    fun unitToPixle(un:Float):Float
     {
         return un//Math.floor((worldScale*un).toDouble()).toFloat()//(1/worldUnits)*un
     }

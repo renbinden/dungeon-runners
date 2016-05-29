@@ -8,7 +8,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.seventh_root.dungeonrunners.component.SpriteComponent
-
+//TO-DO ADD IN DIFFERENT FUN & TICK TO CHECK IF BROKEN//
+//CREATE FUNCTION TO RETURN A DROPENT TO BE ADDED TO THE MAIN GAMESCREEN//
 class BreakableEnt(x:Float,y:Float,width:Float,height:Float):Brain()
 {
     val entity:Entity = Entity()

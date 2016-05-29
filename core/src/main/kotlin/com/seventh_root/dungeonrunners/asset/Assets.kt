@@ -9,41 +9,27 @@ import com.badlogic.gdx.graphics.g2d.*
 
 class Assets {
 
-    //abstract var background: Texture;
-
-    lateinit var characterDebugani:Array<Animation>;
-    public var soundEnabled = false;
-
-    init {
-        load();
-    }
-
-    open fun loadTexture(file: String): Texture
+    fun loadTexture(file: String): Texture
     {
         return Texture(Gdx.files.internal(file))
     }
-
-    open fun load()
-    {
-            }
-
-    open fun loadspriteset(sheetname:String):SpriteKit
+    fun loadSpriteSet(sheetname:String):SpriteKit
     {
         println("Loading Sprite Sheet : '${sheetname}'");
         when (sheetname) {
             "debug_character" -> {
-                var characterDebug = loadTexture("character_test.png");
-                var characterDebugUP = Animation(1f, TextureRegion(characterDebug, 42, 0, 21, 26))
-                var characterDebugDOWN = Animation(1f, TextureRegion(characterDebug, 42, 26, 21, 26))
-                var characterDebugRIGHT = Animation(1f, TextureRegion(characterDebug, 42, 52, 21, 26))
-                var characterDebugLEFT = Animation(15f, TextureRegion(characterDebug, 42, 78, 21, 26))
-                var characterDebugWALKUP = Animation(15f, TextureRegion(characterDebug, 0, 0, 21, 26), TextureRegion(characterDebug, 42, 0, 21, 26), TextureRegion(characterDebug, 21, 0, 21, 26), TextureRegion(characterDebug, 42, 0, 21, 26))
-                var characterDebugWALKDOWN = Animation(15f, TextureRegion(characterDebug, 0, 26, 21, 26), TextureRegion(characterDebug, 42, 26, 21, 26), TextureRegion(characterDebug, 21, 26, 21, 26), TextureRegion(characterDebug, 42, 26, 21, 26))
-                var characterDebugWALKRIGHT = Animation(15f, TextureRegion(characterDebug, 0, 52, 21, 26), TextureRegion(characterDebug, 42, 52, 21, 26), TextureRegion(characterDebug, 21, 52, 21, 26), TextureRegion(characterDebug, 42, 52, 21, 26))
-                var characterDebugWALKLEFT = Animation(15f, TextureRegion(characterDebug, 0, 78, 21, 26), TextureRegion(characterDebug, 42, 78, 21, 26), TextureRegion(characterDebug, 21, 78, 21, 26), TextureRegion(characterDebug, 42, 78, 21, 26))
-                characterDebugani = arrayOf(characterDebugUP,characterDebugDOWN,characterDebugLEFT,characterDebugRIGHT,characterDebugWALKUP,characterDebugWALKDOWN,characterDebugWALKLEFT,characterDebugWALKRIGHT)
-                println(characterDebugani.toString());
-                return SpriteKit(characterDebug,characterDebugani)
+                val characterDebug = loadTexture("character_test.png");
+                //left=0,right=1,up=2,down=3//
+                val characterDebugUP = intToAnimation(1F,characterDebug,21,26,intArrayOf(2))
+                val characterDebugDOWN = intToAnimation(1F,characterDebug,21,26,intArrayOf(5))
+                val characterDebugRIGHT = intToAnimation(1F,characterDebug,21,26,intArrayOf(8))
+                val characterDebugLEFT = intToAnimation(1F,characterDebug,21,26,intArrayOf(11))
+                val characterDebugWALKUP = intToAnimation(15F,characterDebug,21,26,intArrayOf(0,2,1,2))
+                val characterDebugWALKDOWN = intToAnimation(15F,characterDebug,21,26,intArrayOf(3,5,4,5))
+                val characterDebugWALKRIGHT = intToAnimation(15F,characterDebug,21,26,intArrayOf(6,8,7,8))
+                val characterDebugWALKLEFT = intToAnimation(15F,characterDebug,21,26,intArrayOf(9,11,10,11))
+                val characterDebugAnimation = arrayOf(characterDebugUP,characterDebugDOWN,characterDebugLEFT,characterDebugRIGHT,characterDebugWALKUP,characterDebugWALKDOWN,characterDebugWALKLEFT,characterDebugWALKRIGHT)
+                return SpriteKit(characterDebug,characterDebugAnimation)
             }
             else -> {
                 return SpriteKit(Texture(Gdx.files.internal("test_tiles.png")),arrayOf())
@@ -51,9 +37,17 @@ class Assets {
         }
     }
 
-    open fun playSound(sound: Sound)
+    fun intToAnimation(delta:Float,texture:Texture,width:Int,height:Int,intArray:IntArray):Animation
     {
-        if (soundEnabled)
+        val spw:Int = Math.floor((texture.width/width).toDouble()).toInt()
+        val textureRegionArray:com.badlogic.gdx.utils.Array<TextureRegion> = com.badlogic.gdx.utils.Array<TextureRegion>(intArray.size)
+        intArray.forEach { currentIndex -> textureRegionArray.add(TextureRegion(texture,(currentIndex-(Math.floor((currentIndex/spw).toDouble())*spw)).toInt()*width,Math.floor((currentIndex/spw).toDouble()).toInt()*height,width,height))}
+        return Animation(delta,textureRegionArray)
+    }
+
+    fun playSound(sound: Sound)
+    {
+     //   if (soundEnabled)
             sound.play(1F);
     }
 }

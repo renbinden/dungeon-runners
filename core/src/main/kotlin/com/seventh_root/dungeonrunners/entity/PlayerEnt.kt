@@ -62,6 +62,8 @@ if (!isNetwork)
     entity.add(SpriteComponent(sprite))
 }
 
+    //Used to set Sprite Kit by returning the class's sprite kit name... Might move to Assets class//
+    //Could also be used to proc specific class specifications//
     fun spriteSet(): String
     {
         when (skillSet) {
@@ -74,34 +76,41 @@ if (!isNetwork)
         }
     }
 
+    //Used to set Sprite Kit//
     fun setSpriteKit(kit:SpriteKit)
     {
         curKit = kit;
     }
 
+    //Used to determine Current State Based off Movements//
     fun setState()
     {
         var xv:Float = controller.linearVelocity.x
         var yv:Float = controller.linearVelocity.y
+
+        //If controller is moving set walking to true//
         if(yv>0||yv<0||xv>0||xv<0)
         {
             isWalking = true
         }else{
             isWalking = false
         }
-        //up-0 down-1 left-2 right-3
+
+
+        //Check the last key pressed//
+        //left=0,right=1,up=2,down=3//
         when (controller.lastPressed) {
-            controller.keyboardMapping.upKey -> {
-                isFacing = 2
-            }
-            controller.keyboardMapping.downKey -> {
-                isFacing = 3
-            }
             controller.keyboardMapping.leftKey -> {
                 isFacing = 0
             }
             controller.keyboardMapping.rightKey -> {
                 isFacing = 1
+            }
+            controller.keyboardMapping.upKey -> {
+                isFacing = 2
+            }
+            controller.keyboardMapping.downKey -> {
+                isFacing = 3
             }
             else -> {
                 //...What key are you pressing?...//
@@ -110,11 +119,13 @@ if (!isNetwork)
 
     }
 
-    override fun tick() {
-        super.tick()
-        setState()
+    //Used to update animation//
+    //SAVE ME FROM THE DELTA x_x//
+    fun updateAnimation()
+    {
         if(curKit!=null)
         {
+            //Check if Animation is different, If it is, Reset Animation Delta//
             var newAni = isFacing
             if(isWalking) {
                 newAni+= 4
@@ -129,10 +140,17 @@ if (!isNetwork)
             {
                 tState = 0F;
             }
-            //curKit.animations[curAni].playMode = Animation.PlayMode.NORMAL//
+
             sprite.set(Sprite(curKit.animations[curAni].getKeyFrame(tState)))
+
             tState++
         }
+    }
+
+    override fun tick() {
+        super.tick()
+        setState()
+        updateAnimation()
     }
 
 }
